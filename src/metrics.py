@@ -1,19 +1,11 @@
-from pathlib import Path
-
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+from config import BACKTEST_FILE, RISK_FREE_RATE, TRADING_DAYS_PER_YEAR
 
 
-DATA_DIR = Path("data")
-INPUT_FILE = DATA_DIR / "aapl_backtest.csv"
-
-
-TRADING_DAYS_PER_YEAR = 252
-RISK_FREE_RATE = 0.0
-
-
-def load_data(file_path: Path) -> pd.DataFrame:
-    df = pd.read_csv(file_path)
+def load_backtest_data() -> pd.DataFrame:
+    df = pd.read_csv(BACKTEST_FILE)
     df["date"] = pd.to_datetime(df["date"])
     df = df.sort_values("date").reset_index(drop=True)
     return df
@@ -21,8 +13,7 @@ def load_data(file_path: Path) -> pd.DataFrame:
 
 def compute_drawdown(cumulative_returns: pd.Series) -> pd.Series:
     running_max = cumulative_returns.cummax()
-    drawdown = cumulative_returns / running_max - 1.0
-    return drawdown
+    return cumulative_returns / running_max - 1.0
 
 
 def total_return(cumulative_returns: pd.Series) -> float:
@@ -37,7 +28,6 @@ def annualized_return(daily_returns: pd.Series) -> float:
 
     cumulative_growth = (1 + clean).prod()
     n_days = len(clean)
-
     return cumulative_growth ** (TRADING_DAYS_PER_YEAR / n_days) - 1.0
 
 
@@ -45,7 +35,6 @@ def annualized_volatility(daily_returns: pd.Series) -> float:
     clean = daily_returns.dropna()
     if len(clean) == 0:
         return np.nan
-
     return clean.std() * np.sqrt(TRADING_DAYS_PER_YEAR)
 
 
@@ -68,11 +57,7 @@ def max_drawdown(cumulative_returns: pd.Series) -> float:
     return drawdown.min()
 
 
-def calculate_metrics(
-    daily_returns: pd.Series,
-    cumulative_returns: pd.Series,
-    label: str,
-) -> dict:
+def calculate_metrics(daily_returns: pd.Series, cumulative_returns: pd.Series, label: str) -> dict:
     return {
         "label": label,
         "total_return": total_return(cumulative_returns),
@@ -83,15 +68,13 @@ def calculate_metrics(
     }
 
 
-def format_pct(value: float) -> str:
-    return f"{value:.2%}"
-
-
-def format_num(value: float) -> str:
-    return f"{value:.4f}"
-
-
 def print_metrics_table(metrics: list[dict]) -> None:
+    def format_pct(value: float) -> str:
+        return f"{value:.2%}"
+
+    def format_num(value: float) -> str:
+        return f"{value:.4f}"
+
     print("\nPerformance Summary")
     print("-" * 95)
     print(
@@ -115,26 +98,3 @@ def print_metrics_table(metrics: list[dict]) -> None:
         )
 
     print("-" * 95)
-
-
-def main() -> None:
-    print(f"Loading data from {INPUT_FILE}...")
-    df = load_data(INPUT_FILE)
-
-    market_metrics = calculate_metrics(
-        daily_returns=df["returns"],
-        cumulative_returns=df["cum_market"],
-        label="Buy & Hold",
-    )
-
-    strategy_metrics = calculate_metrics(
-        daily_returns=df["strategy_returns"],
-        cumulative_returns=df["cum_strategy"],
-        label="SMA Strategy",
-    )
-
-    print_metrics_table([market_metrics, strategy_metrics])
-
-
-if __name__ == "__main__":
-    main()

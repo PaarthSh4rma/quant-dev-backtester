@@ -1,17 +1,11 @@
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
-DATA_DIR = Path("data")
-INPUT_FILE = DATA_DIR / "aapl_backtest.csv"
-PLOTS_DIR = Path("plots")
-PLOTS_DIR.mkdir(exist_ok=True)
+from config import BACKTEST_FILE, PLOTS_DIR, SMA_WINDOW
 
 
-def load_data(file_path: Path) -> pd.DataFrame:
-    df = pd.read_csv(file_path)
+def load_data() -> pd.DataFrame:
+    df = pd.read_csv(BACKTEST_FILE)
     df["date"] = pd.to_datetime(df["date"])
     df = df.sort_values("date").reset_index(drop=True)
     return df
@@ -19,8 +13,7 @@ def load_data(file_path: Path) -> pd.DataFrame:
 
 def compute_drawdown(series: pd.Series) -> pd.Series:
     running_max = series.cummax()
-    drawdown = (series / running_max) - 1.0
-    return drawdown
+    return (series / running_max) - 1.0
 
 
 def print_sanity_checks(df: pd.DataFrame) -> None:
@@ -41,8 +34,8 @@ def print_sanity_checks(df: pd.DataFrame) -> None:
 def plot_price_and_sma(df: pd.DataFrame) -> None:
     plt.figure(figsize=(12, 6))
     plt.plot(df["date"], df["close"], label="Close")
-    plt.plot(df["date"], df["sma_20"], label="SMA 20")
-    plt.title("AAPL Price vs 20-Day SMA")
+    plt.plot(df["date"], df[f"sma_{SMA_WINDOW}"], label=f"SMA {SMA_WINDOW}")
+    plt.title(f"AAPL Price vs {SMA_WINDOW}-Day SMA")
     plt.xlabel("Date")
     plt.ylabel("Price")
     plt.legend()
@@ -79,19 +72,3 @@ def plot_drawdown(df: pd.DataFrame) -> None:
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / "drawdown.png")
     plt.show()
-
-
-def main() -> None:
-    print(f"Loading data from {INPUT_FILE}...")
-    df = load_data(INPUT_FILE)
-
-    print_sanity_checks(df)
-    plot_price_and_sma(df)
-    plot_cumulative_returns(df)
-    plot_drawdown(df)
-
-    print(f"\nSaved plots to: {PLOTS_DIR}/")
-
-
-if __name__ == "__main__":
-    main()
