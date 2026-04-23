@@ -1,9 +1,8 @@
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
 import yfinance as yf
-
-from config import RAW_DATA_FILE
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -36,5 +35,6 @@ def download_stock_data(ticker: str, start: str, end: Optional[str] = None) -> p
     return df
 
 
-def save_raw_data(df: pd.DataFrame) -> None:
-    df.to_csv(RAW_DATA_FILE, index=False)
+def save_raw_data(df: pd.DataFrame, raw_data_file: Path) -> None:
+    raw_data_file.parent.mkdir(exist_ok=True)
+    df.to_csv(raw_data_file, index=False)

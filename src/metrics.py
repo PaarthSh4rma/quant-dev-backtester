@@ -1,11 +1,12 @@
+from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from config import BACKTEST_FILE, RISK_FREE_RATE, TRADING_DAYS_PER_YEAR
+from config import RISK_FREE_RATE, TRADING_DAYS_PER_YEAR
 
 
-def load_backtest_data() -> pd.DataFrame:
-    df = pd.read_csv(BACKTEST_FILE)
+def load_backtest_data(backtest_file: Path) -> pd.DataFrame:
+    df = pd.read_csv(backtest_file)
     df["date"] = pd.to_datetime(df["date"])
     df = df.sort_values("date").reset_index(drop=True)
     return df
@@ -78,7 +79,7 @@ def print_metrics_table(metrics: list[dict]) -> None:
     print("\nPerformance Summary")
     print("-" * 95)
     print(
-        f"{'Strategy':<15}"
+        f"{'Strategy':<22}"
         f"{'Total Return':<18}"
         f"{'Annual Return':<18}"
         f"{'Annual Vol':<15}"
@@ -89,7 +90,7 @@ def print_metrics_table(metrics: list[dict]) -> None:
 
     for m in metrics:
         print(
-            f"{m['label']:<15}"
+            f"{m['label']:<22}"
             f"{format_pct(m['total_return']):<18}"
             f"{format_pct(m['annualized_return']):<18}"
             f"{format_pct(m['annualized_volatility']):<15}"

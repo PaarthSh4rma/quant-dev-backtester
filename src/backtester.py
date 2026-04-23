@@ -1,10 +1,9 @@
+from pathlib import Path
 import pandas as pd
 
-from config import BACKTEST_FILE, SIGNALS_FILE
 
-
-def load_signal_data() -> pd.DataFrame:
-    df = pd.read_csv(SIGNALS_FILE)
+def load_signal_data(signals_file: Path) -> pd.DataFrame:
+    df = pd.read_csv(signals_file)
     df["date"] = pd.to_datetime(df["date"])
     df = df.sort_values("date").reset_index(drop=True)
     return df
@@ -35,5 +34,6 @@ def compute_cumulative_returns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def save_backtest(df: pd.DataFrame) -> None:
-    df.to_csv(BACKTEST_FILE, index=False)
+def save_backtest(df: pd.DataFrame, backtest_file: Path) -> None:
+    backtest_file.parent.mkdir(exist_ok=True)
+    df.to_csv(backtest_file, index=False)
