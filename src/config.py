@@ -17,4 +17,9 @@ BACKTEST_FILE = DATA_DIR / f"{TICKER.lower()}_backtest.csv"
 
 TRADING_DAYS_PER_YEAR = 252
 RISK_FREE_RATE = 0.0
+
 SMA_WINDOW = 20
+SHORT_SMA_WINDOW = 10
+LONG_SMA_WINDOW = 50
+
+STRATEGY_NAME = "sma_crossover"  # options: "sma_trend", "sma_crossover"

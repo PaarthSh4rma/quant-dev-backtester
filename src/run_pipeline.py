@@ -1,5 +1,5 @@
 from data_loader import download_stock_data, save_raw_data
-from strategy import add_moving_average, add_signal, load_price_data, save_signals
+from strategy import build_signals, load_price_data, save_signals, select_signal
 from backtester import (
     compute_cumulative_returns,
     compute_positions,
@@ -10,7 +10,7 @@ from backtester import (
 )
 from metrics import calculate_metrics, load_backtest_data, print_metrics_table
 from visualize import load_data, plot_cumulative_returns, plot_drawdown, plot_price_and_sma
-from config import BACKTEST_FILE, RISK_FREE_RATE, SMA_WINDOW, START_DATE, TICKER
+from config import BACKTEST_FILE, SMA_WINDOW, START_DATE, STRATEGY_NAME, TICKER
 
 
 def main() -> None:
@@ -20,9 +20,11 @@ def main() -> None:
 
     print("Step 2: Generating strategy signals...")
     signal_df = load_price_data()
-    signal_df = add_moving_average(signal_df, window=SMA_WINDOW)
-    signal_df = add_signal(signal_df, ma_column=f"sma_{SMA_WINDOW}")
+    signal_df = build_signals(signal_df)
+    signal_df = select_signal(signal_df, strategy_name=STRATEGY_NAME)
     save_signals(signal_df)
+
+    print(f"Selected strategy: {STRATEGY_NAME}")
 
     print("Step 3: Running backtest...")
     backtest_df = load_signal_data()
@@ -44,7 +46,7 @@ def main() -> None:
     strategy_metrics = calculate_metrics(
         daily_returns=results_df["strategy_returns"],
         cumulative_returns=results_df["cum_strategy"],
-        label="SMA Strategy",
+        label=STRATEGY_NAME,
     )
 
     print_metrics_table([market_metrics, strategy_metrics])
