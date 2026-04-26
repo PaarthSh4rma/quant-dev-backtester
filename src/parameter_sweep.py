@@ -14,7 +14,8 @@ from backtester import (
 from metrics import calculate_metrics
 from config import DATA_DIR
 pd.set_option("display.max_columns", None)
-pd.set_option("display.width", 120)
+pd.set_option("display.width", 140)
+pd.set_option("display.max_rows", 50)
 
 def run_single_backtest(
     ticker: str,
@@ -25,10 +26,6 @@ def run_single_backtest(
     long_window: int,
 ) -> dict:
     raw_file = DATA_DIR / f"{ticker.lower()}_temp.csv"
-
-    # Download once per run (can optimize later)
-    df = download_stock_data(ticker=ticker, start=start_date)
-    save_raw_data(df, raw_file)
 
     df = load_price_data(raw_file)
 
@@ -117,6 +114,12 @@ def main():
     ticker = "AAPL"
     start_date = "2020-01-01"
 
+    print("Downloading data once...")
+    raw_df = download_stock_data(ticker=ticker, start=start_date)
+
+    temp_file = DATA_DIR / f"{ticker.lower()}_cached.csv"
+    save_raw_data(raw_df, temp_file)
+
     print("\n=== Running SMA Trend Sweep ===")
     trend_df = run_sma_trend_sweep(ticker, start_date)
 
@@ -128,13 +131,39 @@ def main():
     # Sort by Sharpe (most important)
     all_results = all_results.sort_values(by="sharpe", ascending=False)
 
-    print("\n=== Top Strategies by Sharpe ===")
-    print(all_results.head(10))
+    all_results["rank"] = range(1, len(all_results) + 1)
+
+    print("\n=== Top 10 Strategies by Sharpe ===")
+    print(all_results.head(10)[
+        [   
+            "rank",
+            "strategy",
+            "sma_window",
+            "short_window",
+            "long_window",
+            "annual_return",
+            "volatility",
+            "sharpe",
+            "max_drawdown",
+        ]
+    ])
+
+    best = all_results.iloc[0]
+
+    print("\n=== BEST STRATEGY ===")
+    print(f"Strategy: {best['strategy']}")
+    print(f"SMA Window: {best['sma_window']}")
+    print(f"Short/Long: {best['short_window']}/{best['long_window']}")
+    print(f"Sharpe: {best['sharpe']:.4f}")
+    print(f"Annual Return: {best['annual_return']:.2%}")
+    print(f"Volatility: {best['volatility']:.2%}")
+    print(f"Max Drawdown: {best['max_drawdown']:.2%}")
 
     output_file = DATA_DIR / f"{ticker.lower()}_parameter_sweep.csv"
-    all_results.to_csv(output_file, index=False)
+    all_results.round(4).to_csv(output_file, index=False)
 
     print(f"\nSaved results to {output_file}")
+
 
 
 if __name__ == "__main__":
