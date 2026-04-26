@@ -59,12 +59,13 @@ Different assets exhibit different levels of exploitable structure:
 
 
 ### 2. Optimal Parameters Vary by Asset
-Asset	  |      Best Strategy	      |  Key Parameters
-------------------------------------------------------
-AAPL	  |      SMA Trend	          |  20-day
-GOOG	  |      SMA Crossover	      |  (20, 100)
-SPY	    |      SMA Trend	          |  100-day
-MSFT	  |      Weak signal	        |  No clear optimum
+
+| Asset | Best Strategy | Key Parameters   |
+| ----- | ------------- | ---------------- |
+| AAPL  | SMA Trend     | 20-day           |
+| GOOG  | SMA Crossover | (20, 100)        |
+| SPY   | SMA Trend     | 100-day          |
+| MSFT  | Weak signal   | No clear optimum |
 
 
 ### 3. Longer Horizons Improve Stability
