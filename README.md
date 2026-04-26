@@ -186,4 +186,5 @@ This project was built to:
 ---
 ## Author
 Paarth Sharma
+
 Software Engineer / Quant Dev
