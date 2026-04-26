@@ -109,6 +109,19 @@ Running the pipeline will:
   - cumulative returns
   - drawdowns
 
+--- 
+
+### Multi-Asset Insight
+
+Strategy performance varies significantly across assets.  
+For example:
+
+- AAPL: SMA trend (20) performed best  
+- GOOG: SMA crossover (20,100) achieved highest Sharpe (~1.15)  
+- SPY: Longer-term trend strategies were more effective  
+
+This highlights the importance of cross-asset validation in strategy development.
+
 ---
 
 ## Tech Stack
@@ -131,8 +144,6 @@ This project was built to:
 
 ## 🔜 Next Steps
 
-- Parameter sweeps and optimization
-- Multi-asset backtesting
 - Transaction cost modeling
 - Position sizing and portfolio allocation
 - Additional strategies (momentum, mean reversion)
