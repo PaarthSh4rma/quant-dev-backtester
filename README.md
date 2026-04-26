@@ -1,24 +1,32 @@
 # Quant Dev Backtester
 
-A modular quantitative trading backtesting engine built in Python to evaluate systematic trading strategies on historical market data.
-
+A modular quantitative research and backtesting framework built in Python for evaluating systematic trading strategies across multiple assets.
 ---
 
 ## Overview
 
-This project implements a **modular and configurable quantitative trading backtesting engine** in Python.
+This project implements a **configurable, modular backtesting engine** designed to simulate and evaluate rule-based trading strategies on historical market data.
 
-It supports:
+It is structured to resemble a lightweight quant research pipeline, with clear separation between:
 
+- Data ingestion
+- Feature engineering
+- Strategy logic
+- Backtesting engine
+- Performance evaluation
+- Visualization
+
+---
+
+## Features
 - Market data ingestion via yFinance
-- Feature engineering (technical indicators)
-- Multiple strategy implementations
-- Configurable parameters via CLI
-- Backtesting and portfolio simulation
-- Performance evaluation (Sharpe, drawdown, volatility)
-- Visualization of results
-
-The system is designed to behave like a lightweight research framework for testing trading strategies.
+- Modular strategy design
+- CLI-based parameter configuration
+- Backtesting with position simulation
+- Performance metrics (Sharpe, volatility, drawdown)
+- Visualization (price, returns, drawdowns)
+- Parameter sweep + strategy optimization
+- Cross-asset evaluation (AAPL, GOOG, MSFT, SPY)
 
 ---
 
@@ -28,32 +36,69 @@ The system is designed to behave like a lightweight research framework for testi
 - Long when: `Close > SMA(N)`
 - Otherwise: out of market
 - Simple trend-following logic
+- Captures directional momentum
+- Lower turnover, smoother equity curve
 
 ### 2. SMA Crossover Strategy
 - Long when: `SMA(short) > SMA(long)`
 - Otherwise: out of market
+- Filters noise using dual moving averages
 - More conservative, slower signal
 
 ---
 
-### Key Insight
+## Research Findings
+### 1. Strategy Performance is Asset-Dependent
 
-Different strategies produce **tradeoffs between return and risk**:
+Different assets exhibit different levels of exploitable structure:
 
-- Trend strategy: higher Sharpe, smoother performance
-- Crossover: lower exposure, but may miss strong rallies
+- GOOG → strongest performance (Sharpe ≈ 1.15)
+- AAPL → consistent trend behavior
+- SPY → stable but lower alpha
+- MSFT → weaker signal structure
 
+
+### 2. Optimal Parameters Vary by Asset
+Asset	  |      Best Strategy	      |  Key Parameters
+------------------------------------------------------
+AAPL	  |      SMA Trend	          |  20-day
+GOOG	  |      SMA Crossover	      |  (20, 100)
+SPY	    |      SMA Trend	          |  100-day
+MSFT	  |      Weak signal	        |  No clear optimum
+
+
+### 3. Longer Horizons Improve Stability
+
+Across multiple assets:
+
+- Increasing the long window reduces noise
+- Leads to higher Sharpe ratios
+- Reduces overtrading
+
+  
+### 4. Risk-Return Tradeoff
+- Trend strategies → higher Sharpe, smoother drawdowns
+- Crossover strategies → lower exposure, but miss strong rallies
+---
+
+## Limitations
+- Results are in-sample only
+- No transaction costs or slippage
+- No walk-forward validation
+
+* Future work should include out-of-sample testing to avoid overfitting.
 ---
 
 ## Project Structure
-```
+```text
 src/
-├── config.py           # Default configuration values
+├── config.py           # Configuration values
 ├── data_loader.py      # Market data ingestion
-├── strategy.py         # Strategy definitions (trend, crossover)
-├── backtester.py       # Backtesting engine
-├── metrics.py          # Performance evaluation
+├── strategy.py         # Strategy logic
+├── backtester.py       # Core backtesting engine
+├── metrics.py          # Performance metrics
 ├── visualize.py        # Plotting and analysis
+├── parameter_sweep.py  # Strategy optimization
 └── run_pipeline.py     # CLI entry point
 ```
 
@@ -109,19 +154,6 @@ Running the pipeline will:
   - cumulative returns
   - drawdowns
 
---- 
-
-### Multi-Asset Insight
-
-Strategy performance varies significantly across assets.  
-For example:
-
-- AAPL: SMA trend (20) performed best  
-- GOOG: SMA crossover (20,100) achieved highest Sharpe (~1.15)  
-- SPY: Longer-term trend strategies were more effective  
-
-This highlights the importance of cross-asset validation in strategy development.
-
 ---
 
 ## Tech Stack
@@ -137,13 +169,20 @@ yFinance
 This project was built to:
 
 - Develop quantitative trading intuition
-- Practice building data-driven systems
+- Practice building data-driven systems and pipelines
 - Satisfy Curiosity about the Quant Field
 
 ---
 
-## 🔜 Next Steps
+## Next Steps
 
 - Transaction cost modeling
 - Position sizing and portfolio allocation
+- Walk-forward validation
 - Additional strategies (momentum, mean reversion)
+- Multi-asset portfolio backtesting
+
+---
+## Author
+Paarth Sharma
+Software Engineer / Quant Dev
